@@ -1,0 +1,29 @@
+Текущая кодовая страница: 1251
+psql (15.4)
+Введите "help", чтобы получить справку.
+
+postgres=# CREATE OR REPLACE FUNCTION update_product_quantity()
+postgres-#   RETURNS TRIGGER AS $$
+postgres$# BEGIN
+postgres$#   UPDATE Products
+postgres$#   SET quantity = quantity - NEW.quantity
+postgres$#   WHERE product_id = NEW.product_id;
+postgres$#   RETURN NEW;
+postgres$# END;
+postgres$# $$ LANGUAGE plpgsql;
+CREATE FUNCTION
+postgres=#
+postgres=# CREATE TRIGGER update_quantity_trigger
+postgres-# AFTER INSERT ON OrderItems
+postgres-# FOR EACH ROW
+postgres-# EXECUTE FUNCTION update_product_quantity();
+CREATE TRIGGER
+postgres=#
+
+Функция update_product_quantity() выполняет следующие действия:
+1. Она получает новые данные, которые были вставлены в таблицу OrderItems.
+2. Затем, с использованием оператора `UPDATE`, она обновляет количество продукта в таблице Products. Конкретный продукт для обновления выбирается на основе product_id, который есть и в таблице OrderItems, и в таблице Products.
+3. Обновление происходит путем вычитания значения столбца quantity из NEW.quantity (количество нового продукта, вставленного в таблицу OrderItems).
+4. После обновления, функция возвращает данные NEW.
+
+Tриггер update_quantity_trigger создается для таблицы OrderItems и будет выполнять функцию update_product_quantity() после каждой вставки новых данных в OrderItems. Таким образом, при каждой вставке нового элемента в OrderItems, количество продукта будет автоматически обновляться в таблице Products. Это позволяет поддерживать актуальное количество продуктов на основе заказов.
