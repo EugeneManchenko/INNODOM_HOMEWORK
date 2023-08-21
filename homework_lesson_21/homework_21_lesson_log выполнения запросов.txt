@@ -1,0 +1,227 @@
+Текущая кодовая страница: 1251
+psql (15.4)
+Введите "help", чтобы получить справку.
+
+postgres=# CREATE TABLE Users (
+postgres(#   user_id INT PRIMARY KEY,
+postgres(#   first_name VARCHAR(50),
+postgres(#   last_name VARCHAR(50),
+postgres(#   email VARCHAR(100),
+postgres(#   shipping_address VARCHAR(200)
+postgres(# );
+CREATE TABLE
+postgres=# CREATE TABLE Products (
+postgres(#   product_id INT PRIMARY KEY,
+postgres(#   name VARCHAR(100),
+postgres(#   category VARCHAR(50),
+postgres(#   brand VARCHAR(50),
+postgres(#   price DECIMAL(10, 2),
+postgres(#   quantity INT
+postgres(# );
+CREATE TABLE
+postgres=# CREATE TABLE Orders (
+postgres(#   order_id INT PRIMARY KEY,
+postgres(#   user_id INT,
+postgres(#   date DATE,
+postgres(#   status VARCHAR(50),
+postgres(#   FOREIGN KEY (user_id) REFERENCES Users(user_id)
+postgres(# );
+CREATE TABLE
+postgres=# CREATE TABLE OrderItems (
+postgres(#   order_items_id INT PRIMARY KEY,
+postgres(#   order_id INT,
+postgres(#   product_id INT,
+postgres(#   quantity INT,
+postgres(#   price DECIMAL(10, 2),
+postgres(#   FOREIGN KEY (order_id) REFERENCES Orders(order_id),
+postgres(#   FOREIGN KEY (product_id) REFERENCES Products(product_id)
+postgres(# );
+CREATE TABLE
+postgres=# INSERT INTO Users (user_id, first_name, last_name, email, shipping_address)
+postgres-# VALUES
+postgres-# (1, 'Иван', 'Иванов', 'ivan@example.com', 'ул. Центральная, 1'),
+postgres-# (2, 'Петр', 'Петров', 'petr@gmail.com', 'ул. Садовая, 2'),
+postgres-# (3, 'Анна', 'Сидорова', 'anna@gmail.com', 'ул. Лесная, 3'),
+postgres-# (4, 'Мария', 'Смирнова', 'maria@gmail.com', 'ул. Пушкина, 4'),
+postgres-# (5, 'Алексей', 'Волков', 'alexei@gmail.com', 'ул. Ленина, 5'),
+postgres-# (6, 'Ольга', 'Кузнецова', 'olga@gmail.com', 'ул. Гагарина, 6'),
+postgres-# (7, 'Дмитрий', 'Морозов', 'dmitrii@gmail.com', 'ул. Жукова, 7'),
+postgres-# (8, 'Елена', 'Ковалева', 'elena@gmail.com', 'ул. Озерная, 8'),
+postgres-# (9, 'Александр', 'Новиков', 'alexander@gmail.com', 'ул. Кирова, 9'),
+postgres-# (10, 'Екатерина', 'Петрова', 'ekaterina@gmail.com', 'ул. Мира, 10');
+INSERT 0 10
+postgres=# INSERT INTO Products (product_id, name, category, brand, price, quantity)
+postgres-# VALUES
+postgres-# (1, 'Телефон', 'Электроника', 'Samsung', 500, 20),
+postgres-# (2, 'Ноутбук', 'Электроника', 'Apple', 1200, 15),
+postgres-# (3, 'Футболка', 'Одежда', 'Nike', 30, 50),
+postgres-# (4, 'Кроссовки', 'Обувь', 'Adidas', 80, 30),
+postgres-# (5, 'Часы', 'Аксессуары', 'Casio', 100, 10),
+postgres-# (6, 'Кофеварка', 'Кухонная техника', 'Bosch', 150, 8),
+postgres-# (7, 'Акустическая система', 'Аудио', 'Sony', 200, 5),
+postgres-# (8, 'Книга', 'Книги', 'Penguin', 20, 100),
+postgres-# (9, 'Камера', 'Фотоаппараты', 'Canon', 300, 12),
+postgres-# (10, 'Планшет', 'Электроника', 'Lenovo', 350, 18);
+INSERT 0 10
+postgres=# INSERT INTO Orders (order_id, user_id, date, status)
+postgres-# VALUES
+postgres-# (1, 1, '2022-01-01', 'В обработке'),
+postgres-# (2, 2, '2022-01-02', 'Отправлен'),
+postgres-# (3, 3, '2022-01-03', 'Доставлен'),
+postgres-# (4, 4, '2022-01-04', 'Возвращен'),
+postgres-# (5, 5, '2022-01-05', 'В обработке'),
+postgres-# (6, 6, '2022-01-06', 'Отправлен'),
+postgres-# (7, 7, '2022-01-07', 'Доставлен'),
+postgres-# (8, 8, '2022-01-08', 'В обработке'),
+postgres-# (9, 9, '2022-01-09', 'Отправлен'),
+postgres-# (10, 10, '2022-01-10', 'Доставлен');
+INSERT 0 10
+postgres=# INSERT INTO OrderItems (order_items_id, order_id, product_id, quantity, price)
+postgres-# VALUES
+postgres-# (1, 1, 1, 2, 1000),
+postgres-# (2, 1, 2, 1, 1200),
+postgres-# (3, 2, 3, 3, 90),
+postgres-# (4, 2, 4, 2, 160),
+postgres-# (5, 3, 5, 1, 100),
+postgres-# (6, 3, 6, 1, 150),
+postgres-# (7, 4, 7, 2, 400),
+postgres-# (8, 4, 8, 5, 100),
+postgres-# (9, 5, 9, 1, 300),
+postgres-# (10, 5, 10, 2, 700);
+INSERT 0 10
+postgres=# SELECT * FROM Orders
+postgres-# WHERE user_id = (SELECT user_id FROM Users WHERE email = 'ivan@example.com');
+ order_id | user_id |    date    |   status
+----------+---------+------------+-------------
+        1 |       1 | 2022-01-01 | В обработке
+(1 строка)
+
+
+postgres=# SELECT category, SUM(quantity) AS total_quantity
+postgres-# FROM Products
+postgres-# WHERE category = 'Электроника'
+postgres-# GROUP BY category;
+  category   | total_quantity
+-------------+----------------
+ Электроника |             53
+(1 строка)
+
+
+postgres=# SELECT * FROM Orders
+postgres-# WHERE date >= '2022-01-01' AND date <= '2022-01-09';
+ order_id | user_id |    date    |   status
+----------+---------+------------+-------------
+        1 |       1 | 2022-01-01 | В обработке
+        2 |       2 | 2022-01-02 | Отправлен
+        3 |       3 | 2022-01-03 | Доставлен
+        4 |       4 | 2022-01-04 | Возвращен
+        5 |       5 | 2022-01-05 | В обработке
+        6 |       6 | 2022-01-06 | Отправлен
+        7 |       7 | 2022-01-07 | Доставлен
+        8 |       8 | 2022-01-08 | В обработке
+        9 |       9 | 2022-01-09 | Отправлен
+(9 строк)
+
+
+postgres=# SELECT user_id, SUM(price) AS total_order_amount
+postgres-# FROM OrderItems
+postgres-# GROUP BY user_id;
+ОШИБКА:  столбец "user_id" не существует
+СТРОКА 1: SELECT user_id, SUM(price) AS total_order_amount
+                 ^
+ПОДСКАЗКА:  Возможно, предполагалась ссылка на столбец "orderitems.order_id".
+postgres=# SELECT user_id, SUM(price) AS total_order_amount
+postgres-# FROM OrderItems
+postgres-# SELECT o.user_id, SUM(oi.price) AS total_order_amount
+postgres-# FROM Orders o JOIN OrderItems oi ON o.order_id = oi.order_id
+postgres-# GROUP BY o.user_id;
+ОШИБКА:  ошибка синтаксиса (примерное положение: "SELECT")
+СТРОКА 3: SELECT o.user_id, SUM(oi.price) AS total_order_amount
+          ^
+postgres=# SELECT SUM(price) AS total_order_amount
+postgres-# FROM OrderItems;
+ total_order_amount
+--------------------
+            4200.00
+(1 строка)
+
+
+postgres=# SELECT * FROM Products
+postgres-# WHERE quantity < '5';
+ product_id | name | category | brand | price | quantity
+------------+------+----------+-------+-------+----------
+(0 строк)
+
+
+postgres=# SELECT * FROM Products
+postgres-# WHERE quantity < '10';
+ product_id |         name         |     category     | brand | price  | quantity
+------------+----------------------+------------------+-------+--------+----------
+          6 | Кофеварка            | Кухонная техника | Bosch | 150.00 |        8
+          7 | Акустическая система | Аудио            | Sony  | 200.00 |        5
+(2 строки)
+
+
+postgres=# SELECT * FROM Orders
+postgres-# WHERE order_id IN (SELECT order_id FROM OrderItems GROUP BY order_id HAVING SUM(price) > '500');
+ order_id | user_id |    date    |   status
+----------+---------+------------+-------------
+        1 |       1 | 2022-01-01 | В обработке
+        5 |       5 | 2022-01-05 | В обработке
+(2 строки)
+
+
+postgres=# SELECT * FROM Orders
+postgres-# WHERE status = 'Доставлен';
+ order_id | user_id |    date    |  status
+----------+---------+------------+-----------
+        3 |       3 | 2022-01-03 | Доставлен
+        7 |       7 | 2022-01-07 | Доставлен
+       10 |      10 | 2022-01-10 | Доставлен
+(3 строки)
+
+
+postgres=# SELECT category, AVG(price) AS average_price
+postgres-# FROM Products
+postgres-# GROUP BY category;
+     category     |    average_price
+------------------+----------------------
+ Обувь            |  80.0000000000000000
+ Аксессуары       | 100.0000000000000000
+ Книги            |  20.0000000000000000
+ Аудио            | 200.0000000000000000
+ Фотоаппараты     | 300.0000000000000000
+ Одежда           |  30.0000000000000000
+ Электроника      | 683.3333333333333333
+ Кухонная техника | 150.0000000000000000
+(8 строк)
+
+
+postgres=# SELECT * FROM Orders
+postgres-# WHERE order_id IN (SELECT order_id FROM OrderItems WHERE product_id = 'Ноутбук');
+ОШИБКА:  неверный синтаксис для типа integer: "Ноутбук"
+СТРОКА 2: ...ELECT order_id FROM OrderItems WHERE product_id = 'Ноутбук')...
+                                                               ^
+postgres=# SELECT * FROM Orders
+postgres-# WHERE order_id IN (SELECT order_id FROM OrderItems WHERE product_id = 'Телефон');
+ОШИБКА:  неверный синтаксис для типа integer: "Телефон"
+СТРОКА 2: ...ELECT order_id FROM OrderItems WHERE product_id = 'Телефон')...
+                                                               ^
+postgres=# SELECT * FROM Orders
+postgres-# WHERE order_id IN (SELECT order_id FROM OrderItems WHERE product_id = '1');
+ order_id | user_id |    date    |   status
+----------+---------+------------+-------------
+        1 |       1 | 2022-01-01 | В обработке
+(1 строка)
+
+
+postgres=# SELECT SUM(price) AS total_order_amount
+postgres-# FROM OrderItems
+postgres-# WHERE order_id IN (SELECT order_id FROM Orders WHERE EXTRACT(YEAR FROM date) = '2022');
+ total_order_amount
+--------------------
+            4200.00
+(1 строка)
+
+
+postgres=#
