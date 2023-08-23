@@ -1,0 +1,65 @@
+Текущая кодовая страница: 1251
+psql (15.4)
+Введите "help", чтобы получить справку.
+
+postgres=# -- Создаю таблицу для хранения информации о самолетах:
+postgres=# CREATE TABLE aircrafts (
+postgres(#   aircraft_id SERIAL PRIMARY KEY,
+postgres(#   aircraft_model VARCHAR(100) NOT NULL,
+postgres(#   service_airport VARCHAR(100) NOT NULL
+postgres(# );
+CREATE TABLE
+postgres=# --Создаю таблицу для хранения информации о рейсах:
+postgres=# CREATE TABLE flights (
+postgres(#   flight_id SERIAL PRIMARY KEY,
+postgres(#   departure_date DATE NOT NULL,
+postgres(#   arrival_date DATE NOT NULL,
+postgres(#   aircraft_id INT NOT NULL,
+postgres(#   crew_members TEXT[],
+postgres(#   FOREIGN KEY (aircraft_id) REFERENCES aircrafts(aircraft_id) ON DELETE CASCADE
+postgres(# );
+CREATE TABLE
+postgres=# --Создаю таблицу для хранения информации о билетах:
+postgres=# CREATE TABLE tickets (
+postgres(#   ticket_id SERIAL PRIMARY KEY,
+postgres(#   aircraft_id INT NOT NULL,
+postgres(#   flight_id INT NOT NULL,
+postgres(#   ticket_type VARCHAR(100) NOT NULL,
+postgres(#   FOREIGN KEY (aircraft_id) REFERENCES aircrafts(aircraft_id),
+postgres(#   FOREIGN KEY (flight_id) REFERENCES flights(flight_id) ON DELETE CASCADE
+postgres(# );
+CREATE TABLE
+postgres=# --Создаю таблицу для хранения информации о предварительных заказах билетов:
+postgres=# CREATE TABLE bookings (
+postgres(#   booking_id SERIAL PRIMARY KEY,
+postgres(#   flight_id INT NOT NULL,
+postgres(#   passenger_name VARCHAR(100) NOT NULL,
+postgres(#   ticket_price DECIMAL(10, 2) NOT NULL,
+postgres(#   FOREIGN KEY (flight_id) REFERENCES flights(flight_id) ON DELETE CASCADE
+postgres(# );
+CREATE TABLE
+postgres=# -- Создаю таблицу для хранения информации о стоимости билетов:
+postgres=# CREATE TABLE ticket_prices (
+postgres(#   ticket_type VARCHAR(100) PRIMARY KEY,
+postgres(#   aircraft_id INT NOT NULL,
+postgres(#   flight_id INT NOT NULL,
+postgres(#   class_type VARCHAR(100) NOT NULL,
+postgres(#   ticket_price DECIMAL(10, 2) NOT NULL,
+postgres(#   FOREIGN KEY (aircraft_id) REFERENCES aircrafts(aircraft_id),
+postgres(#   FOREIGN KEY (flight_id) REFERENCES flights(flight_id) ON DELETE CASCADE);
+CREATE TABLE
+postgres=# -- Создаю таблицу для хранения информации о пассажирах:
+postgres=# CREATE TABLE passengers (
+postgres(#   passenger_id SERIAL PRIMARY KEY,
+postgres(#   passenger_name VARCHAR(100) NOT NULL,
+postgres(#   luggage_info TEXT,
+postgres(#   ticket_id INT NOT NULL,
+postgres(#   FOREIGN KEY (ticket_id) REFERENCES tickets(ticket_id) ON DELETE CASCADE
+postgres(# );
+CREATE TABLE
+postgres=#
+postgres=# -- создаю дамп базы данных
+postgres=# pg_dump -U <user> <current_database> > dump.sql
+postgres-# -- восстановление дампа в новой базе данных
+postgres-# psql -U <user> -d <airline> -f dump.sql
+postgres-#
