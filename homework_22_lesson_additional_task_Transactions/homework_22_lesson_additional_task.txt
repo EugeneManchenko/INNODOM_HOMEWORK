@@ -1,0 +1,74 @@
+-- Таблица (Кафе):
+CREATE TABLE Cafe (
+    id INT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(20) NOT NULL
+);
+
+--Таблица (Стол):
+CREATE TABLE Table (
+    id INT PRIMARY KEY,
+    cafe_id INT,
+    capacity INT NOT NULL,
+    FOREIGN KEY (cafe_id) REFERENCES Cafe(id)
+);
+
+
+-- Таблица (Клиент):
+CREATE TABLE Customer (
+    id INT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(20)
+);
+
+-- Таблица (Бронирование):
+CREATE TABLE Reservation (
+    id INT PRIMARY KEY,
+    table_id INT,
+    customer_id INT,
+    reservation_date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    FOREIGN KEY (table_id) REFERENCES Table(id),
+    FOREIGN KEY (customer_id) REFERENCES Customer(id)
+);
+
+
+-- Таблица  (Тип кухни):
+CREATE TABLE CuisineType (
+    id INT PRIMARY KEY,
+    cuisine_name VARCHAR(255) NOT NULL
+);
+
+START TRANSACTION;
+
+-- Вставка данных в таблицы
+
+INSERT INTO Cafe (id, name, address, phone_number) VALUES (1, 'Pyhhon Club', 'Минск, Николы теслы 1', '226-45-45');
+INSERT INTO Cafe (id, name, address, phone_number) VALUES (2, 'С++ Club', 'Братская 1', '228-46-46');
+
+INSERT INTO Table (id, cafe_id, capacity) VALUES (1, 1, 4);
+INSERT INTO Table (id, cafe_id, capacity) VALUES (2, 1, 6);
+INSERT INTO Table (id, cafe_id, capacity) VALUES (3, 2, 8);
+
+INSERT INTO Customer (id, name, email, phone_number) VALUES (1, 'Иван Иванов', 'ivan@gmail.com', '333-333-333');
+INSERT INTO Customer (id, name, email, phone_number) VALUES (2, 'Алексей Петров', 'alexei@gmail.com', '444-444-444');
+
+INSERT INTO Reservation (id, table_id, customer_id, reservation_date, start_time, end_time) VALUES (1, 1, 1, '2023-01-01', '12:00:00', '13:00:00');
+INSERT INTO Reservation (id, table_id, customer_id, reservation_date, start_time, end_time) VALUES (2, 2, 2, '2023-01-02', '14:00:00', '16:00:00');
+
+-- Сохранение точки восстановления
+SAVEPOINT my_savepoint_cafe;
+
+-- Удаление данных из таблицы без сохранения точки восстановления
+DELETE FROM Reservation WHERE id = 2;
+
+-- Откат до точки восстановления
+ROLLBACK TO SAVEPOINT my_savepoint_cafe;
+
+-- Вставка новых данных
+INSERT INTO Reservation (id, table_id, customer_id, reservation_date, start_time, end_time) VALUES (3, 3, 1, '2023-01-03', '18:00:00', '20:00:00');
+
+COMMIT;
