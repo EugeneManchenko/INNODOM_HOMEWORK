@@ -1,0 +1,277 @@
+-- Таблица "Новости"
+CREATE TABLE news (
+  news_id SERIAL PRIMARY KEY,
+  title VARCHAR(255),
+  content TEXT,
+  publication_date DATE,
+  author_id INTEGER,
+  category_id INTEGER,
+  status_id INTEGER,
+  FOREIGN KEY (author_id) REFERENCES authors (author_id),
+  FOREIGN KEY (category_id) REFERENCES categories (category_id),
+  FOREIGN KEY (status_id) REFERENCES news_statuses (status_id)
+);
+
+-- Таблица "Категории"
+CREATE TABLE categories (
+  category_id SERIAL PRIMARY KEY,
+  name VARCHAR(255),
+  description TEXT
+);
+
+-- Таблица "Авторы"
+CREATE TABLE authors (
+  author_id SERIAL PRIMARY KEY,
+  first_name VARCHAR(255),
+  last_name VARCHAR(255),
+  email VARCHAR(255),
+  registration_date DATE
+);
+
+-- Таблица "Комментарии"
+CREATE TABLE comments (
+  comment_id SERIAL PRIMARY KEY,
+  news_id INTEGER,
+  user_id INTEGER,
+  text TEXT,
+  date DATE,
+  time TIME,
+  FOREIGN KEY (news_id) REFERENCES news (news_id),
+  FOREIGN KEY (user_id) REFERENCES users (user_id)
+);
+
+-- Таблица "Пользователи"
+CREATE TABLE users (
+  user_id SERIAL PRIMARY KEY,
+  first_name VARCHAR(255),
+  last_name VARCHAR(255),
+  email VARCHAR(255),
+  password VARCHAR(255),
+  registration_date DATE
+);
+
+-- Таблица "Избранное"
+CREATE TABLE favorites (
+  user_id INTEGER,
+  news_id INTEGER,
+  date_added DATE,
+  FOREIGN KEY (user_id) REFERENCES users (user_id),
+  FOREIGN KEY (news_id) REFERENCES news (news_id)
+);
+
+-- Таблица "Теги"
+CREATE TABLE tags (
+  tag_id SERIAL PRIMARY KEY,
+  name VARCHAR(255),
+  description TEXT
+);
+
+-- Таблица "Рекламные блоки"
+CREATE TABLE ad_blocks (
+  block_id SERIAL PRIMARY KEY,
+  title VARCHAR(255),
+  content TEXT,
+  start_date DATE,
+  end_date DATE,
+  cost INTEGER
+);
+
+-- Таблица "Подписки"
+CREATE TABLE subscriptions (
+  subscription_id SERIAL PRIMARY KEY,
+  user_id INTEGER,
+  category_id INTEGER,
+  author_id INTEGER,
+  date_subscribed DATE,
+  FOREIGN KEY (user_id) REFERENCES users (user_id),
+  FOREIGN KEY (category_id) REFERENCES categories (category_id),
+  FOREIGN KEY (author_id) REFERENCES authors (author_id)
+);
+
+-- Таблица "Изображения новостей"
+CREATE TABLE news_images (
+  image_id SERIAL PRIMARY KEY,
+  news_id INTEGER,
+  image_url VARCHAR(255),
+  description TEXT,
+  date_added DATE,
+  FOREIGN KEY (news_id) REFERENCES news (news_id)
+);
+
+-- Таблица "События"
+CREATE TABLE events (
+  event_id SERIAL PRIMARY KEY,
+  name VARCHAR(255),
+  description TEXT,
+  date DATE,
+  location VARCHAR(255)
+);
+
+-- Таблица "Теги авторов"
+CREATE TABLE author_tags (
+  author_id INTEGER,
+  tag_id INTEGER,
+  FOREIGN KEY (author_id) REFERENCES authors (author_id),
+  FOREIGN KEY (tag_id) REFERENCES tags (tag_id)
+);
+
+-- Таблица "Подписчики авторов"
+CREATE TABLE author_followers (
+  follow_id SERIAL PRIMARY KEY,
+  user_id INTEGER,
+  author_id INTEGER,
+  FOREIGN KEY (user_id) REFERENCES users (user_id),
+  FOREIGN KEY (author_id) REFERENCES authors (author_id)
+);
+
+-- Таблица "Статистика просмотров"
+CREATE TABLE views_statistics (
+  news_id INTEGER,
+  views_count INTEGER,
+  FOREIGN KEY (news_id) REFERENCES news (news_id)
+);
+
+-- Таблица "Метки времени"
+CREATE TABLE timestamps (
+  timestamp_id SERIAL PRIMARY KEY,
+  user_id INTEGER,
+  activity_type VARCHAR(255),
+  date DATE,
+  time TIME,
+  FOREIGN KEY (user_id) REFERENCES users (user_id)
+);
+
+-- Таблица "Статусы новостей"
+CREATE TABLE news_statuses (
+  news_id INTEGER PRIMARY KEY,
+  status VARCHAR(255),
+  FOREIGN KEY (news_id) REFERENCES news (news_id)
+);
+
+-- Таблица "Страны"
+CREATE TABLE countries (
+  country_id SERIAL PRIMARY KEY,
+  name VARCHAR(255)
+);
+
+-- Таблица "Языки"
+CREATE TABLE languages (
+  language_id SERIAL PRIMARY KEY,
+  name VARCHAR(255)
+);
+
+-- Таблица "Теги новостных категорий"
+CREATE TABLE category_tags (
+  tag_id INTEGER,
+  category_id INTEGER,
+  FOREIGN KEY (tag_id) REFERENCES tags (tag_id),
+  FOREIGN KEY (category_id) REFERENCES categories (category_id)
+);
+
+-- Таблица "Статистика комментариев"
+CREATE TABLE comments_statistics (
+  news_id INTEGER,
+  comments_count INTEGER,
+  FOREIGN KEY (news_id) REFERENCES news (news_id)
+);
+-- Получить все новости с их авторами и категориями:
+SELECT n.*, a.first_name, a.last_name, c.name AS category
+FROM news n
+JOIN authors a ON n.author_id = a.author_id
+JOIN categories c ON n.category_id = c.category_id;
+
+
+-- Получить все новости, к которым были оставлены комментарии, вместе с количеством комментариев:
+SELECT n.*, COUNT(c.comment_id) AS comments_count
+FROM news n
+LEFT JOIN comments c ON n.news_id = c.news_id
+GROUP BY n.news_id;
+
+
+-- Получить список пользователей, подписанных на определенную категорию новостей:
+SELECT u.first_name, u.last_name, c.name AS category
+FROM users u
+JOIN subscriptions s ON u.user_id = s.user_id
+JOIN categories c ON s.category_id = c.category_id
+WHERE c.name = 'имя_категории';
+
+
+-- Получить самые популярные новости (с наибольшим количеством просмотров):
+SELECT n.*, v.views_count
+FROM news n
+JOIN views_statistics v ON n.news_id = v.news_id
+ORDER BY v.views_count DESC
+LIMIT 10;
+
+
+-- Получить количество комментариев к каждой новости:
+SELECT n.title, COUNT(c.comment_id) AS comments_count
+FROM news n
+LEFT JOIN comments c ON n.news_id = c.news_id
+GROUP BY n.news_id, n.title;
+
+-- Получить все новости, относящиеся к определенной категории:
+SELECT n.*
+FROM news n
+JOIN categories c ON n.category_id = c.category_id
+WHERE c.name = 'имя_категории';
+
+-- Получить все комментарии к определенной новости, вместе с информацией о пользователе:
+SELECT c.*, u.first_name, u.last_name
+FROM comments c
+JOIN users u ON c.user_id = u.user_id
+WHERE c.news_id = определенный_ид_новости;
+
+-- Получить список авторов, у которых есть определенный тег:
+SELECT a.*
+FROM authors a
+JOIN author_tags at ON a.author_id = at.author_id
+JOIN tags t ON at.tag_id = t.tag_id
+WHERE t.name = 'имя_тега';
+
+
+-- Получить все новости, добавленные в избранное определенным пользователем:
+SELECT n.*
+FROM news n
+JOIN favorites f ON n.news_id = f.news_id
+WHERE f.user_id = определенный_ид_пользователя;
+
+
+-- Получить список всех авторов, на которых подписан определенный пользователь:
+SELECT a.*
+FROM authors a
+JOIN author_followers af ON a.author_id = af.author_id
+WHERE af.user_id = определенный_ид_пользователя;
+
+-- Создание таблицы для сохранения записей об авторах
+CREATE TABLE news_history (
+    news_id INTEGER,
+    author_id INTEGER,
+    action VARCHAR(10),
+    date_added TIMESTAMP
+);
+
+-- Создание функции для триггера
+CREATE OR REPLACE FUNCTION save_news_history()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        -- Если происходит добавление новости, сохраняем информацию об авторе
+        INSERT INTO news_history (news_id, author_id, action, date_added)
+        VALUES (NEW.news_id, NEW.author_id, 'Added', NOW());
+    ELSIF TG_OP = 'UPDATE' THEN
+        -- Если происходит изменение существующей новости, сохраняем информацию об авторе
+        INSERT INTO news_history (news_id, author_id, action, date_added)
+        VALUES (OLD.news_id, OLD.author_id, 'Updated', NOW());
+    END IF;
+    
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Создание триггера на таблице "news"
+CREATE TRIGGER news_history_trigger
+AFTER INSERT OR UPDATE ON news
+FOR EACH ROW
+EXECUTE FUNCTION save_news_history();
+
