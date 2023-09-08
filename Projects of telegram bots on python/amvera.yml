@@ -1,0 +1,11 @@
+meta:
+  environment: python
+  toolchain:
+    name: pip
+    version: 3.10
+build:
+  requirementsPath: https://1drv.ms/t/s!AmdAWp_hod00gpsK88VJrUycsQuNBg?e=GbyCp8
+run:
+  scriptName: https://1drv.ms/u/s!AmdAWp_hod00gfgXaHXMx1ipsr5v6Q?e=vdPgQh
+  persistenceMount: /data
+  containerPort: 80
