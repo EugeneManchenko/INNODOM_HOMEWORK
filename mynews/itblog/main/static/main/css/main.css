@@ -4,8 +4,8 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 16px;
-    background-color: #F0F8FF;
-    color: #B0E0E6;
+    background-color: #F0FFF0;
+    color: #87CEEB;
     line-height: 1.6;
     margin: 0;
     padding: 0;
@@ -14,11 +14,11 @@ body {
 /* Настройте стиль боковой панели */
 aside {
     position: fixed;
-    background: #4B0082;
+    background: #87CEFA;
     width: 250px;
     padding: 20px;
     height: 100%;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
 }
 
 aside img {
@@ -46,13 +46,13 @@ aside ul {
 
 aside ul li {
     padding: 10px;
-    border-bottom: 1px solid #FFF;
+    border-bottom: 1px solid #708090;
 }
 
 /* Добавьте эффект наведения на элементы списка */
 aside ul li:hover,
 aside ul a:hover {
-    background: #9932CC;
+    background: #708090;
     color: #FFF;
     cursor: pointer;
 }
