@@ -5,11 +5,6 @@
 {% block content %}
     <div class = "features">
         <h1>Новости на сайте</h1>
-        {% for el in news %}
-        <div class="alert-warning">
-            <h3>{{ el.title }}</h3>
-            <p><{{ el.full_text }}</p>
-        </div>
         {% endfor %}
     </div>
 {% endblock %}
